@@ -1,0 +1,10 @@
+{
+  "name": "Tacos de Canasta El Arquito",
+  "short_name": "El Arquito",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f1ed",
+  "theme_color": "#9f4300",
+  "lang": "es-MX",
+  "icons": []
+}

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#a94700">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="El Arquito">
+<title>El Arquito · Comprobantes</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--brown:#9f4300;--orange:#ffb300;--cream:#fff9ef;--ink:#2d241e;--muted:#74685e;--line:#eadfd4;--card:#fff;--ok:#2e7d32}
+*{box-sizing:border-box}body{margin:0;background:#f5f1ed;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header{background:linear-gradient(135deg,#8e3900,#b95300);color:white;padding:18px 16px calc(18px + env(safe-area-inset-top));padding-top:calc(18px + env(safe-area-inset-top));position:sticky;top:0;z-index:5;box-shadow:0 2px 12px #0002}
+header h1{margin:0;font-size:21px}header p{margin:3px 0 0;opacity:.85;font-size:13px}
+main{max-width:760px;margin:auto;padding:14px 12px 90px}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #00000008}
+.card h2{font-size:16px;margin:0 0 12px;color:var(--brown)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;border:1px solid #d9cec4;border-radius:10px;padding:11px 10px;font-size:16px;background:#fff;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px #ffb30022}textarea{min-height:72px;resize:vertical}
+.order-head{display:grid;grid-template-columns:1fr 1fr;gap:10px}.folio{background:var(--cream);font-weight:800}
+table{width:100%;border-collapse:collapse}th{font-size:12px;text-align:left;background:#fbf3e9;color:var(--muted);padding:9px 7px}td{border-bottom:1px solid var(--line);padding:7px}td.qty{width:92px}td.qty input{text-align:center;padding:9px}td.check{width:55px;text-align:center}td.check input{width:20px;height:20px}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.4}
+.money{display:grid;gap:9px}.money-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line)}.money-row:last-child{border:0}.money-row strong{font-size:18px}.money-row input{max-width:150px;text-align:right}
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px}.buttons .wide{grid-column:1/-1}
+button{border:0;border-radius:12px;padding:13px 12px;font-size:15px;font-weight:800;cursor:pointer}
+.primary{background:var(--brown);color:white}.secondary{background:#fff1df;color:var(--brown);border:1px solid #edc99d}.green{background:#e8f4e9;color:var(--ok)}.danger{background:#fcebea;color:#a33}
+#preview{display:none}.receipt{background:white;width:100%;max-width:720px;margin:auto;padding:28px;color:#2b211a}
+.receipt-logo{display:block;width:230px;height:auto;margin:0 auto 10px}.receipt-title{text-align:center;font-size:21px;font-weight:900;color:var(--brown);margin:3px 0 16px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;border-top:2px solid var(--brown);padding-top:12px}.rfield{font-size:13px;margin-bottom:6px}.rfield b{display:block;font-size:11px;color:#806e61;text-transform:uppercase}.rtable{margin-top:14px}.rtable th,.rtable td{border:1px solid #ded3ca}.rtable th{background:#f7eee5;color:#5d4b3f}.rsummary{margin-top:14px;margin-left:auto;max-width:360px}.rrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee}.rrow.total{font-size:19px;font-weight:900;border-bottom:2px solid var(--brown)}.rnote{margin-top:16px;padding:12px;background:#fff7eb;border-left:4px solid var(--orange);font-size:12px;line-height:1.5}.rfooter{text-align:center;font-size:11px;color:#766a62;margin-top:18px}
+.history-item{border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:8px;background:#fff}.history-top{display:flex;justify-content:space-between;gap:8px}.history-item small{color:var(--muted)}.history-actions{display:flex;gap:7px;margin-top:8px}.history-actions button{padding:8px 10px;font-size:12px}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:10px}
+@media(max-width:520px){.grid,.order-head,.buttons{grid-template-columns:1fr}.full{grid-column:auto}.receipt{padding:18px}.rgrid{grid-template-columns:1fr}.receipt-logo{width:200px}}
+@media print{
+  body{background:white}.app-ui{display:none!important}#preview{display:block!important}.receipt{max-width:none;padding:10mm 9mm}
+  @page{size:auto;margin:8mm}
+}
+</style>
+</head>
+<body>
+<div class="app-ui">
+<header><h1>🌮 Tacos de Canasta El Arquito</h1><p>Comprobantes de pedido · uso interno</p></header>
+<main>
+<form id="orderForm">
+<section class="card">
+<h2>1. Datos del pedido</h2>
+<div class="order-head">
+<div><label>Folio</label><input id="folio" class="folio" placeholder="Ej. ARQ-001" required></div>
+<div><label>Fecha de elaboración</label><input id="elabDate" type="date"></div>
+</div>
+<div class="grid" style="margin-top:10px">
+<div><label>Cliente</label><input id="cliente" placeholder="Nombre del cliente" required></div>
+<div><label>Dirección</label><input id="direccion" placeholder="Dirección del evento"></div>
+<div><label>Fecha del evento</label><input id="fechaEvento" type="date" required></div>
+<div><label>Hora</label><input id="horaEvento" type="time" required></div>
+</div>
+</section>
+
+<section class="card">
+<h2>2. Tacos</h2>
+<table>
+<thead><tr><th>Cantidad</th><th>Sabor</th><th class="check">Incluye</th></tr></thead>
+<tbody id="flavorRows"></tbody>
+</table>
+<p class="note"><b>Surtido:</b> escribe la cantidad total en la fila “Surtido”. Si es surtido, puedes marcar ✓ en los sabores que llevará.</p>
+</section>
+
+<section class="card">
+<h2>3. Canasta y pago</h2>
+<div class="grid">
+<div><label>Tamaño de canasta</label>
+<select id="canasta"><option value="Pequeña">Pequeña · $700</option><option value="Mediana">Mediana · $800</option><option value="Grande">Grande · $900</option></select></div>
+<div><label>Anticipo recibido</label><input id="anticipo" type="number" min="0" step="1" placeholder="Ej. 1500"></div>
+</div>
+<div class="money" style="margin-top:12px">
+<div class="money-row"><span>Total de tacos</span><b id="totalTacos">0</b></div>
+<div class="money-row"><span>Costo de tacos</span><b id="costoTacos">$0</b></div>
+<div class="money-row"><span>Depósito de canasta</span><b id="deposito">$700</b></div>
+<div class="money-row"><span>Total del pedido</span><strong id="totalPedido">$700</strong></div>
+<div class="money-row"><span>Restante</span><strong id="restante">$700</strong></div>
+<div class="money-row"><span>Depósito a devolver</span><b id="devolver">$700</b></div>
+</div>
+<p class="note">El depósito de canasta se devuelve al regresar la canasta al local al día siguiente del evento. El anticipo es editable y el restante se calcula con el importe realmente recibido.</p>
+</section>
+
+<section class="card">
+<h2>4. Observaciones</h2>
+<textarea id="observaciones" placeholder="Notas del pedido, indicaciones, etc."></textarea>
+</section>
+
+<section class="card">
+<div class="buttons">
+<button type="button" class="primary wide" id="generate">Generar comprobante</button>
+<button type="button" class="secondary" id="newOrder">Nuevo pedido</button>
+<button type="button" class="green" id="whatsapp">Compartir por WhatsApp</button>
+<button type="button" class="secondary wide" id="print">Imprimir / Guardar PDF</button>
+</div>
+</section>
+</form>
+
+<section class="card">
+<h2>Historial</h2>
+<div id="history"></div>
+</section>
+</main>
+</div>
+
+<section id="preview">
+<div class="receipt">
+<img class="receipt-logo" src="logo.jpg" alt="El Arquito">
+<div class="receipt-title">COMPROBANTE DE PEDIDO</div>
+<div class="rgrid" id="rdata"></div>
+<table class="rtable">
+<thead><tr><th>Cantidad</th><th>Sabor</th><th>Incluye</th></tr></thead>
+<tbody id="rflavors"></tbody>
+</table>
+<div class="rsummary" id="rsummary"></div>
+<div class="rnote" id="rnote"></div>
+<div class="rfooter">Tacos de Canasta El Arquito · 449 120 6069 · 449 181 3996<br>Av. Luis Gil 109, Talamantes Ponce</div>
+</div>
+</section>
+
+<script>
+const FLAVORS=[
+"Frijol con chorizo","Tinga de puerco","Pollo con mole verde",
+"Puerco en pasilla","Puerco en salsa verde","Chicharrón en guajillo","Surtido"
+];
+const DEP={Pequeña:700,Mediana:800,Grande:900};
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(Number(n)||0);
+function today(){return new Date().toISOString().slice(0,10)}
+function nextFolio(){
+ const d=new Date(), key="ARQ-"+String(d.getDate()).padStart(2,"0")+String(d.getMonth()+1).padStart(2,"0")+String(String(d.getFullYear()).slice(-2));
+ const arr=JSON.parse(localStorage.getItem("arq_orders")||"[]");
+ const n=arr.filter(x=>String(x.folio||"").startsWith(key)).length+1;
+ return key+"-"+String(n).padStart(3,"0");
+}
+function renderFlavorInputs(){
+ $("flavorRows").innerHTML=FLAVORS.map((f,i)=>`
+ <tr data-i="${i}">
+  <td class="qty"><input class="fqty" type="number" min="0" step="1" inputmode="numeric" value="${i===6?0:0}" aria-label="Cantidad ${f}"></td>
+  <td>${f}</td>
+  <td class="check"><input class="fcheck" type="checkbox" aria-label="Incluye ${f}"></td>
+ </tr>`).join("");
+ document.querySelectorAll(".fqty,.fcheck").forEach(e=>e.addEventListener("input",calc));
+}
+function calc(){
+ let q=[...document.querySelectorAll(".fqty")].map(x=>Number(x.value)||0);
+ const surt=q[6];
+ const total=surt>0?surt:q.slice(0,6).reduce((a,b)=>a+b,0);
+ const dep=DEP[$("canasta").value];
+ const costo=total*16, pedido=costo+dep, ant=Number($("anticipo").value)||0;
+ $("totalTacos").textContent=total; $("costoTacos").textContent=money(costo);
+ $("deposito").textContent=money(dep); $("totalPedido").textContent=money(pedido);
+ $("restante").textContent=money(pedido-ant); $("devolver").textContent=money(dep);
+}
+function data(){
+ const qty=[...document.querySelectorAll(".fqty")].map(x=>Number(x.value)||0);
+ const checks=[...document.querySelectorAll(".fcheck")].map(x=>x.checked);
+ const surt=qty[6], total=surt>0?surt:qty.slice(0,6).reduce((a,b)=>a+b,0);
+ const dep=DEP[$("canasta").value], costo=total*16, pedido=costo+dep, ant=Number($("anticipo").value)||0;
+ return {folio:$("folio").value,elabDate:$("elabDate").value,cliente:$("cliente").value.trim(),
+ direccion:$("direccion").value.trim(),fechaEvento:$("fechaEvento").value,horaEvento:$("horaEvento").value,
+ qty,checks,total,costo,canasta:$("canasta").value,deposito:dep,pedido,anticipo:ant,restante:pedido-ant,
+ observaciones:$("observaciones").value.trim(),created:Date.now()};
+}
+function fmtDate(s){if(!s)return "—";let [y,m,d]=s.split("-");return `${d}/${m}/${y}`}
+function fillPreview(o){
+ $("rdata").innerHTML=[
+ ["Cliente",o.cliente],["Dirección",o.direccion||"—"],["Fecha del evento",fmtDate(o.fechaEvento)],
+ ["Hora",o.horaEvento||"—"],["Folio",o.folio],["Fecha de elaboración",fmtDate(o.elabDate)]
+ ].map(x=>`<div class="rfield"><b>${x[0]}</b>${esc(x[1])}</div>`).join("");
+ $("rflavors").innerHTML=FLAVORS.map((f,i)=>`<tr><td>${o.qty[i]||""}</td><td>${f}</td><td>${o.checks[i]?"✓":""}</td></tr>`).join("");
+ $("rsummary").innerHTML=[
+ ["Costo de tacos",money(o.costo)],["Depósito de canasta",money(o.deposito)],
+ ["Total del pedido",money(o.pedido)],["Anticipo recibido",money(o.anticipo)],
+ ["Restante",money(o.restante)],["Depósito a devolver",money(o.deposito)]
+ ].map((x,i)=>`<div class="rrow ${i===2?"total":""}"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");
+ $("rnote").innerHTML=`<b>Observaciones:</b> ${esc(o.observaciones||"Sin observaciones.")}<br><br>El depósito de canasta será devuelto al regresar la canasta al local al día siguiente del evento.`;
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function save(o){
+ let arr=JSON.parse(localStorage.getItem("arq_orders")||"[]");
+ arr=[o,...arr.filter(x=>x.folio!==o.folio)].slice(0,100);
+ localStorage.setItem("arq_orders",JSON.stringify(arr)); renderHistory();
+}
+function generate(){
+ const o=data();
+ if(!o.folio||!o.cliente||!o.fechaEvento||!o.horaEvento){alert("Falta capturar folio, cliente, fecha y hora del evento.");return}
+ if(o.total<=0){alert("Captura la cantidad de tacos.");return}
+ fillPreview(o); save(o);
+ $("preview").style.display="block";
+ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+function loadOrder(o){
+ $("folio").value=o.folio; $("elabDate").value=o.elabDate; $("cliente").value=o.cliente;
+ $("direccion").value=o.direccion; $("fechaEvento").value=o.fechaEvento; $("horaEvento").value=o.horaEvento;
+ $("canasta").value=o.canasta; $("anticipo").value=o.anticipo; $("observaciones").value=o.observaciones;
+ document.querySelectorAll(".fqty").forEach((e,i)=>e.value=o.qty[i]||0);
+ document.querySelectorAll(".fcheck").forEach((e,i)=>e.checked=!!o.checks[i]); calc();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderHistory(){
+ const arr=JSON.parse(localStorage.getItem("arq_orders")||"[]");
+ if(!arr.length){$("history").innerHTML='<div class="empty">Todavía no hay pedidos guardados en este dispositivo.</div>';return}
+ $("history").innerHTML=arr.map((o,i)=>`<div class="history-item">
+ <div class="history-top"><b>${esc(o.folio)}</b><b>${money(o.pedido)}</b></div>
+ <small>${esc(o.cliente)} · Evento ${fmtDate(o.fechaEvento)} ${o.horaEvento||""} · ${o.total} tacos</small>
+ <div class="history-actions"><button class="secondary" onclick="loadOrder(JSON.parse(localStorage.getItem('arq_orders'))[${i}])">Editar / ver</button><button class="green" onclick="shareWhats(JSON.parse(localStorage.getItem('arq_orders'))[${i}])">WhatsApp</button></div>
+ </div>`).join("");
+}
+function reset(){
+ $("orderForm").reset(); $("folio").value=""; $("elabDate").value=today(); $("preview").style.display="none";
+ document.querySelectorAll(".fqty").forEach(e=>e.value=0);document.querySelectorAll(".fcheck").forEach(e=>e.checked=false);
+ calc();window.scrollTo({top:0,behavior:"smooth"});
+}
+function shareWhats(o){
+ const text=`TACOS DE CANASTA EL ARQUITO
+COMPROBANTE DE PEDIDO
+Folio: ${o.folio}
+Cliente: ${o.cliente}
+Fecha: ${fmtDate(o.fechaEvento)}
+Hora: ${o.horaEvento}
+Total tacos: ${o.total}
+Costo tacos: ${money(o.costo)}
+Canasta ${o.canasta}: ${money(o.deposito)}
+TOTAL: ${money(o.pedido)}
+Anticipo: ${money(o.anticipo)}
+Restante: ${money(o.restante)}
+Depósito a devolver: ${money(o.deposito)}
+${o.observaciones?"Observaciones: "+o.observaciones:""}`;
+ const url="https://wa.me/?text="+encodeURIComponent(text);
+ window.location.href=url;
+}
+$("generate").onclick=generate;
+$("print").onclick=()=>{if(!$("preview").innerHTML.trim()){generate();}else window.print()};
+$("newOrder").onclick=reset;
+$("whatsapp").onclick=()=>shareWhats(data());
+$("canasta").onchange=calc;$("anticipo").oninput=calc;
+renderFlavorInputs();reset();renderHistory();
+if("serviceWorker" in navigator && location.protocol!=="file:") navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>
