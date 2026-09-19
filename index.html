@@ -28,15 +28,36 @@ table{width:100%;border-collapse:collapse}th{font-size:12px;text-align:left;back
 .buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px}.buttons .wide{grid-column:1/-1}
 button{border:0;border-radius:12px;padding:13px 12px;font-size:15px;font-weight:800;cursor:pointer}
 .primary{background:var(--brown);color:white}.secondary{background:#fff1df;color:var(--brown);border:1px solid #edc99d}.green{background:#e8f4e9;color:var(--ok)}.danger{background:#fcebea;color:#a33}
-#preview{display:none}.receipt{background:white;width:100%;max-width:720px;margin:auto;padding:28px;color:#2b211a}
-.receipt-logo{display:block;width:230px;height:auto;margin:0 auto 10px}.receipt-title{text-align:center;font-size:21px;font-weight:900;color:var(--brown);margin:3px 0 16px}
-.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;border-top:2px solid var(--brown);padding-top:12px}.rfield{font-size:13px;margin-bottom:6px}.rfield b{display:block;font-size:11px;color:#806e61;text-transform:uppercase}.rtable{margin-top:14px}.rtable th,.rtable td{border:1px solid #ded3ca}.rtable th{background:#f7eee5;color:#5d4b3f}.rsummary{margin-top:14px;margin-left:auto;max-width:360px}.rrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee}.rrow.total{font-size:19px;font-weight:900;border-bottom:2px solid var(--brown)}.rnote{margin-top:16px;padding:12px;background:#fff7eb;border-left:4px solid var(--orange);font-size:12px;line-height:1.5}.rfooter{text-align:center;font-size:11px;color:#766a62;margin-top:18px}
+#preview{display:none}.receipt{background:white;width:100%;max-width:720px;margin:auto;padding:18px;color:#2b211a;font-size:12px}
+.receipt-logo{display:block;width:180px;height:auto;margin:0 auto 5px}.receipt-title{text-align:center;font-size:19px;font-weight:900;color:var(--brown);margin:2px 0 10px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;border-top:2px solid var(--brown);padding-top:8px}.rfield{font-size:11px;margin-bottom:2px}.rfield b{display:block;font-size:9px;color:#806e61;text-transform:uppercase}.rtable{margin-top:8px}.rtable th,.rtable td{border:1px solid #ded3ca;padding:4px 6px}.rtable th{background:#f7eee5;color:#5d4b3f}.rsummary{margin-top:8px;margin-left:auto;max-width:320px}.rrow{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee}.rrow.total{font-size:19px;font-weight:900;border-bottom:2px solid var(--brown)}.rnote{margin-top:8px;padding:8px;background:#fff7eb;border-left:4px solid var(--orange);font-size:10px;line-height:1.35}.rfooter{text-align:center;font-size:9px;color:#766a62;margin-top:8px}
 .history-item{border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:8px;background:#fff}.history-top{display:flex;justify-content:space-between;gap:8px}.history-item small{color:var(--muted)}.history-actions{display:flex;gap:7px;margin-top:8px}.history-actions button{padding:8px 10px;font-size:12px}
 .empty{color:var(--muted);font-size:13px;text-align:center;padding:10px}
 @media(max-width:520px){.grid,.order-head,.buttons{grid-template-columns:1fr}.full{grid-column:auto}.receipt{padding:18px}.rgrid{grid-template-columns:1fr}.receipt-logo{width:200px}}
+
+.closure-stamps{
+  position:relative;
+  height:235px;
+  margin:2px auto 2px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:visible;
+}
+.closure-stamps img{
+  position:absolute;
+  width:68%;
+  height:auto;
+  display:block;
+  pointer-events:none;
+}
+.closure-stamps .stamp-paid{z-index:2;transform:rotate(-10deg) translateY(-82px);}
+.closure-stamps .stamp-basket{z-index:1;transform:rotate(-10deg) translateY(82px);}
+.closure-title{text-align:center;font-size:15px;font-weight:900;color:var(--brown);margin:0 0 2px}
+
 @media print{
-  body{background:white}.app-ui{display:none!important}#preview{display:block!important}.receipt{max-width:none;padding:10mm 9mm}
-  @page{size:auto;margin:8mm}
+  body{background:white}.app-ui{display:none!important}#preview{display:block!important}.receipt{max-width:none;padding:5mm 7mm;font-size:11px}
+  @page{size:auto;margin:5mm}
 }
 </style>
 </head>
@@ -94,6 +115,7 @@ button{border:0;border-radius:12px;padding:13px 12px;font-size:15px;font-weight:
 <section class="card">
 <div class="buttons">
 <button type="button" class="primary wide" id="generate">Generar comprobante</button>
+<button type="button" class="primary wide" id="closeOrder">🔒 Cerrar pedido y generar comprobante de cierre</button>
 <button type="button" class="secondary" id="newOrder">Nuevo pedido</button>
 <button type="button" class="green" id="whatsapp">Compartir por WhatsApp</button>
 <button type="button" class="secondary wide" id="print">Imprimir / Guardar PDF</button>
@@ -117,9 +139,9 @@ button{border:0;border-radius:12px;padding:13px 12px;font-size:15px;font-weight:
 <thead><tr><th>Cantidad</th><th>Sabor</th><th>Incluye</th></tr></thead>
 <tbody id="rflavors"></tbody>
 </table>
-<div class="rsummary" id="rsummary"></div>
+<div id="closureArea"></div><div class="rsummary" id="rsummary"></div>
 <div class="rnote" id="rnote"></div>
-<div class="rfooter">Tacos de Canasta El Arquito · 449 120 6069 · 449 181 3996<br>Av. Luis Gil 109, Talamantes Ponce</div>
+<div class="rfooter">Tacos de Canasta El Arquito · 449 120 6069 · 449 181 3996<br>Av. Luis Gil 109, Talamantes Ponce · <b>Horario: martes a viernes 8:30–13:00 · sábado y domingo 9:00–13:00</b></div>
 </div>
 </section>
 
@@ -168,18 +190,22 @@ function data(){
  observaciones:$("observaciones").value.trim(),created:Date.now()};
 }
 function fmtDate(s){if(!s)return "—";let [y,m,d]=s.split("-");return `${d}/${m}/${y}`}
-function fillPreview(o){
+function fillPreview(o, closed=false){
  $("rdata").innerHTML=[
- ["Cliente",o.cliente],["Dirección",o.direccion||"—"],["Fecha del evento",fmtDate(o.fechaEvento)],
- ["Hora",o.horaEvento||"—"],["Folio",o.folio],["Fecha de elaboración",fmtDate(o.elabDate)]
+  ["Cliente",o.cliente],["Dirección",o.direccion||"—"],["Fecha del evento",fmtDate(o.fechaEvento)],
+  ["Hora",o.horaEvento||"—"],["Folio",o.folio],["Fecha de elaboración",fmtDate(o.elabDate)]
  ].map(x=>`<div class="rfield"><b>${x[0]}</b>${esc(x[1])}</div>`).join("");
  $("rflavors").innerHTML=FLAVORS.map((f,i)=>`<tr><td>${o.qty[i]||""}</td><td>${f}</td><td>${o.checks[i]?"✓":""}</td></tr>`).join("");
+ const restante=closed?0:o.restante, depositoPendiente=closed?0:o.deposito;
  $("rsummary").innerHTML=[
- ["Costo de tacos",money(o.costo)],["Depósito de canasta",money(o.deposito)],
- ["Total del pedido",money(o.pedido)],["Anticipo recibido",money(o.anticipo)],
- ["Restante",money(o.restante)],["Depósito a devolver",money(o.deposito)]
+  ["Costo de tacos",money(o.costo)],["Depósito de canasta",money(o.deposito)],
+  ["Total del pedido",money(o.pedido)],["Anticipo recibido",money(o.anticipo)],
+  ["Restante",money(restante)],["Depósito a devolver",money(depositoPendiente)]
  ].map((x,i)=>`<div class="rrow ${i===2?"total":""}"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");
- $("rnote").innerHTML=`<b>Observaciones:</b> ${esc(o.observaciones||"Sin observaciones.")}<br><br>El depósito de canasta será devuelto al regresar la canasta al local al día siguiente del evento.`;
+ $("rnote").innerHTML=closed
+  ? `<b>Observaciones:</b> ${esc(o.observaciones||"Sin observaciones.")}<br><br>El pago del pedido ha sido liquidado y la canasta fue recibida. El depósito correspondiente fue reembolsado al cliente. La devolución de la canasta se realiza al día siguiente del evento, en horario de <b>9:00 a.m. a 12:00 p.m.</b>.`
+  : `<b>Observaciones:</b> ${esc(o.observaciones||"Sin observaciones.")}<br><br>El depósito de canasta será devuelto al regresar la canasta al local al día siguiente del evento, en horario de <b>9:00 a.m. a 12:00 p.m.</b>.`;
+ $("closureArea").innerHTML=closed?`<div class="closure-title">PEDIDO CERRADO</div><div class="closure-stamps"><img class="stamp-paid" src="sello_pagado.png" alt="PAGADO"><img class="stamp-basket" src="sello_canasta_devuelta.png" alt="CANASTA DEVUELTA"></div>`:"";
 }
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function save(o){
@@ -193,6 +219,23 @@ function generate(){
  if(o.total<=0){alert("Captura la cantidad de tacos.");return}
  fillPreview(o); save(o);
  $("preview").style.display="block";
+ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+function closeOrder(){
+ const o=data();
+ if(!o.folio||!o.cliente||!o.fechaEvento||!o.horaEvento){alert("Falta capturar folio, cliente, fecha y hora del evento.");return}
+ if(o.total<=0){alert("Captura la cantidad de tacos.");return}
+ if(o.restante>0){
+   const ok=confirm(`El pedido todavía muestra ${money(o.restante)} de saldo.\n\n¿Confirmas que ya se recibió el pago restante y deseas cerrar el pedido?`);
+   if(!ok)return;
+ }
+ const closed={...o,status:"CERRADO",closedAt:Date.now()};
+ let arr=JSON.parse(localStorage.getItem("arq_orders")||"[]");
+ arr=[closed,...arr.filter(x=>x.folio!==o.folio)].slice(0,100);
+ localStorage.setItem("arq_orders",JSON.stringify(arr));
+ fillPreview(closed,true);
+ $("preview").style.display="block";
+ renderHistory();
  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 }
 function loadOrder(o){
@@ -236,6 +279,7 @@ ${o.observaciones?"Observaciones: "+o.observaciones:""}`;
  window.location.href=url;
 }
 $("generate").onclick=generate;
+$("closeOrder").onclick=closeOrder;
 $("print").onclick=()=>{if(!$("preview").innerHTML.trim()){generate();}else window.print()};
 $("newOrder").onclick=reset;
 $("whatsapp").onclick=()=>shareWhats(data());
